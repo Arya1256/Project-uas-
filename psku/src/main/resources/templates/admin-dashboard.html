@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard - Rental PS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            /* Gradien animasi biru gelap PlayStation */
+            background: linear-gradient(-45deg, #232526, #003087, #1cb5e0, #232526);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease-in-out infinite;
+            position: relative;
+        }
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        /* Watermark PlayStation logo */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 60%;
+            left: 60%;
+            width: 700px;
+            height: 700px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/4/4e/Playstation_logo_colour.svg') no-repeat center center;
+            background-size: 65%;
+            opacity: 0.06;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .container, .navbar, footer, .card, .card-form, .table {
+            position: relative;
+            z-index: 1;
+        }
+        .card-form, .card, .table {
+            background: rgba(255,255,255,0.97);
+        }
+        .table thead th {
+            background: #0d6efd;
+            color: #fff;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0);}
+            100% { transform: rotate(360deg);}
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Playstation_logo_colour.svg"
+             alt="PlayStation Logo" style="height:40px; margin-right:10px; animation:spin 2s linear infinite;">
+        <a class="navbar-brand" href="#">Admin Dashboard</a>
+        <div class="d-flex">
+            <a href="/" class="btn btn-outline-light">Halaman Utama</a>
+        </div>
+    </div>
+</nav>
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="mb-4">
+                <h3>Daftar PlayStation</h3>
+                <table class="table table-bordered table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Model</th>
+                            <th>Varian</th>
+                            <th>Harga Sewa</th>
+                            <th>Status</th>
+                            <th style="width:180px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ps : ${psList}">
+                            <td th:text="${ps.id}"></td>
+                            <td th:text="${ps.model}"></td>
+                            <td th:text="${ps.variant}"></td>
+                            <td th:text="${#numbers.formatDecimal(ps.hargaSewa, 0, 'COMMA', 2, 'POINT')}"></td>
+                            <td>
+                                <span th:classappend="${ps.available} ? 'badge bg-success' : 'badge bg-secondary'"
+                                      th:text="${ps.available ? 'Tersedia' : 'Disewa'}"></span>
+                            </td>
+                            <td>
+                                <form th:action="@{/admin/update-ps-status}" method="post" class="d-inline">
+                                    <input type="hidden" name="psId" th:value="${ps.id}"/>
+                                    <input type="hidden" name="status" th:value="${!ps.available}"/>
+                                    <button class="btn btn-sm btn-warning" type="submit">Ubah Status</button>
+                                </form>
+                                <a th:href="@{/admin/edit-ps(id=${ps.id})}" class="btn btn-sm btn-primary">Edit</a>
+                                <a th:href="@{/admin/delete-ps(id=${ps.id})}" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">Hapus</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(psList)}">
+                            <td colspan="6" class="text-center text-muted">Belum ada data PlayStation.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card card-form mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Tambah / Edit PlayStation</h4>
+                    <form th:action="@{/admin/save-ps}" method="post">
+                        <input type="hidden" name="id" th:value="${psEdit != null} ? ${psEdit.id} : ''"/>
+                        <div class="mb-3">
+                            <label class="form-label">Nomor PS</label>
+                            <input type="text" class="form-control" name="model" th:value="${psEdit != null} ? ${psEdit.model} : ''" placeholder="Contoh: PS01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Varian</label>
+                            <select class="form-select" name="variant" required>
+                                <option th:selected="${psEdit != null and psEdit.variant == 'PS3'}">PS3</option>
+                                <option th:selected="${psEdit != null and psEdit.variant == 'PS4'}">PS4</option>
+                                <option th:selected="${psEdit != null and psEdit.variant == 'PS5'}">PS5</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Harga Sewa (per jam)</label>
+                            <input type="number" class="form-control" name="hargaSewa" min="0" step="1000" th:value="${psEdit != null} ? ${psEdit.hargaSewa} : ''" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="available">
+                                <option th:value="true" th:selected="${psEdit != null and psEdit.available}">Tersedia</option>
+                                <option th:value="false" th:selected="${psEdit != null and !psEdit.available}">Disewa</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">Simpan</button>
+                        <a th:href="@{/admin/dashboard}" class="btn btn-secondary">Batal</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <h3>Pengajuan Sewa</h3>
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama</th>
+                        <th>Kontak</th>
+                        <th>PS ID</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${requests}">
+                        <td th:text="${r.id}"></td>
+                        <td th:text="${r.name}"></td>
+                        <td th:text="${r.contact}"></td>
+                        <td th:text="${r.psId}"></td>
+                        <td>
+                            <span th:classappend="${r.approved} ? 'badge bg-success' : 'badge bg-warning text-dark'"
+                                  th:text="${r.approved ? 'Disetujui' : 'Menunggu'}"></span>
+                        </td>
+                        <td>
+                            <form th:if="${!r.approved}" th:action="@{/admin/approve-request}" method="post" class="d-inline">
+                                <input type="hidden" name="requestId" th:value="${r.id}"/>
+                                <button class="btn btn-sm btn-success" type="submit">Setujui</button>
+                            </form>
+                            <a th:if="${r.approved}" th:href="@{/nota/{id}(id=${r.id})}" class="btn btn-sm btn-info">Nota</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(requests)}">
+                        <td colspan="6" class="text-center text-muted">Belum ada pengajuan sewa.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer class="mt-5 text-center text-muted">
+        <small>&copy; 2025 Rental PlayStation - Admin</small>
+    </footer>
+</div>
+</body>
+</html>
