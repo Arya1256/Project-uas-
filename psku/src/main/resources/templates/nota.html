@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nota Sewa PlayStation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #003087, #1cb5e0, #232526, #003087);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease-in-out infinite;
+            position: relative;
+        }
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        .nota-card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.97);
+            max-width: 480px;
+            margin: 40px auto;
+        }
+        .nota-logo {
+            display: block;
+            margin: 0 auto 20px auto;
+            height: 60px;
+            animation: bounce 1.5s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0);}
+            50% { transform: translateY(-10px);}
+        }
+        .timer-finish {
+            background: #e94057 !important;
+            color: #fff !important;
+            font-weight: bold;
+        }
+        @media print {
+            body {
+                background: #fff !important;
+            }
+            .btn, #timer {
+                display: none !important;
+            }
+            .nota-card {
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="nota-card card shadow mt-5">
+        <div class="card-body">
+            <img class="nota-logo" src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Playstation_logo_colour.svg" alt="PlayStation Logo">
+            <h3 class="mb-4 text-center">Nota Sewa PlayStation</h3>
+            <p><b>Nama:</b> <span th:text="${rental.name}">Nama</span></p>
+            <p><b>Kontak:</b> <span th:text="${rental.contact}">Kontak</span></p>
+            <p><b>Nomor PS:</b> <span th:text="${ps.model}">PS01</span></p>
+            <p><b>Varian:</b> <span th:text="${ps.variant}">PS5</span></p>
+            <p><b>Harga Sewa:</b> Rp<span th:text="${#numbers.formatDecimal(ps.hargaSewa, 0, 'COMMA', 2, 'POINT')}">10.000</span> /jam</p>
+            <p><b>Durasi:</b> <span th:text="${rental.durasi}">2</span> jam</p>
+            <hr>
+            <h4>Total: <span class="text-primary">Rp<span th:text="${#numbers.formatDecimal(rental.totalHarga, 0, 'COMMA', 2, 'POINT')}">20.000</span></span></h4>
+            <div id="timer" class="alert alert-info mt-4 text-center"></div>
+            <button id="stopBtn" class="btn btn-danger w-100 mt-3" th:if="${rental.tipeSewa == 'opentime'}">Stop Timer & Cetak Nota</button>
+            <a href="/" class="btn btn-primary w-100 mt-3">Kembali ke Home</a>
+            <a href="javascript:window.print()" class="btn btn-outline-secondary w-100 mt-2">Cetak Nota</a>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const durasi = /*[[${rental.durasi}]]*/ 1;
+    let detik = durasi * 3600;
+    function updateTimer() {
+        let jam = Math.floor(detik / 3600);
+        let menit = Math.floor((detik % 3600) / 60);
+        let sisa = detik % 60;
+        document.getElementById('timer').innerText =
+            `Sisa waktu sewa: ${jam} jam ${menit} menit ${sisa} detik`;
+        if (detik > 0) {
+            detik--;
+            setTimeout(updateTimer, 1000);
+        } else {
+            document.getElementById('timer').innerText = "Waktu sewa telah habis!";
+            document.getElementById('timer').classList.remove('alert-info');
+            document.getElementById('timer').classList.add('timer-finish');
+        }
+    }
+    updateTimer();
+    /*]]>*/
+</script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    let tipeSewa = /*[['${rental.tipeSewa}']]*/ 'durasi';
+    let hargaPerJam = /*[[${ps.hargaSewa}]]*/ 10000;
+    let waktuMulaiStr = /*[['${rental.waktuMulai}']]*/ '';
+    let waktuMulai = waktuMulaiStr ? new Date(waktuMulaiStr) : new Date();
+    let timerInterval;
+    if (tipeSewa === 'opentime') {
+        function updateOpenTimer() {
+            let now = new Date();
+            let diffMs = now - waktuMulai;
+            let jam = Math.floor(diffMs / 3600000);
+            let menit = Math.floor((diffMs % 3600000) / 60000);
+            let detik = Math.floor((diffMs % 60000) / 1000);
+            let totalHarga = Math.ceil(diffMs / 3600000) * hargaPerJam;
+            document.getElementById('timer').innerText =
+                `Waktu berjalan: ${jam} jam ${menit} menit ${detik} detik\nTotal sementara: Rp${totalHarga.toLocaleString()}`;
+        }
+        timerInterval = setInterval(updateOpenTimer, 1000);
+        updateOpenTimer();
+
+        document.getElementById('stopBtn').onclick = function() {
+            clearInterval(timerInterval);
+            let now = new Date();
+            let diffMs = now - waktuMulai;
+            let jam = Math.ceil(diffMs / 3600000);
+            let totalHarga = jam * hargaPerJam;
+            document.getElementById('timer').innerText =
+                `Total waktu: ${jam} jam\nTotal harga: Rp${totalHarga.toLocaleString()}`;
+            window.print();
+        };
+    }
+    /*]]>*/
+</script>
+</body>
+</html>
