@@ -1,6 +1,16 @@
-# APLIKASI PENYEWAAN PLAYSTATION
+# 🎮APLIKASI PENYEWAAN PLAYSTATION
 
-Ini adalah repository project UAS mata kuliah PBO Kelompok 3 Informatika 2024D.
+Aplikasi web untuk manajemen penyewaan konsol PlayStation secara efisien dan modern. Dirancang untuk memudahkan pelanggan dalam menyewa konsol dan bagi admin untuk mengelola transaksi, serta laporan keuangan.
+
+# 🚀 Fitur Utama
+### 👤 Pengguna (Pelanggan)
+- **Pencarian Konsol**: Melihat daftar konsol yang tersedia untuk disewa.
+- **Pemesanan**: Memilih konsol, durasi sewa, dan pembayaran.
+
+### 🛠 Admin
+- **Manajemen Konsol**: Menambah, mengedit, dan menghapus data konsol yang tersedia.
+- **Manajemen Penyewaan**: Melihat dan mengelola status penyewaan pelanggan.
+
 
 ### Anggota Kelomppok
 - Muhammad Kadhimas (https://github.com/kadhimass)
@@ -11,3 +21,6 @@ Ini adalah repository project UAS mata kuliah PBO Kelompok 3 Informatika 2024D.
 - Tri Wahyu Arya Saputra (https://github.com/Arya1256)
 - Annnas Ridho Sadila (https://github.com/idoooyyyy33)
 - Faqih Rafasha Argandhi (https://github.com/Argandhi23)
+
+
+>Ini adalah repository project UAS mata kuliah PBO Kelompok 3 Informatika 2024D.
