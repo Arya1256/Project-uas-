@@ -5,7 +5,7 @@ Aplikasi web untuk manajemen penyewaan konsol PlayStation secara efisien dan mod
 # 🚀 Fitur Utama
 ### 👤 Pengguna (Pelanggan)
 - **Pencarian Konsol**: Melihat daftar konsol yang tersedia untuk disewa.
-- **Pemesanan**: Memilih konsol, durasi sewa, dan pembayaran.
+- **Pemesanan**: Memilih konsol, durasi sewa, dan melihat jumlah pembayaran.
 
 ### 🛠 Admin
 - **Manajemen Konsol**: Menambah, mengedit, dan menghapus data konsol yang tersedia.
